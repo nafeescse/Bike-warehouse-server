@@ -14,39 +14,39 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.4l5l2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 console.log('db connected');
-async function run(){
+async function run() {
 
-    try{
+    try {
         await client.connect();
         const itemCollection = client.db("wirehouse").collection("products");
 
-        app.get('/products', async(req, res) =>{
+        app.get('/products', async (req, res) => {
             const query = {};
             const cursor = itemCollection.find(query);
             const items = await cursor.toArray();
             res.send(items);
         });
 
-        app.get('/products/:id', async(req, res) =>{
+        app.get('/products/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const result = await itemCollection.findOne(query);
             res.send(result);
         });
 
-        // POST User : add a new user
-        app.post('/products', async(req, res) =>{
+        // POST neew items
+        app.post('/products', async (req, res) => {
             const newItem = req.body;
             console.log('adding new item', newItem);
             const result = await itemCollection.insertOne(newItem);
             res.send(result)
         });
 
-        // update user
-        app.put('/products/:id', async(req, res) =>{
+        // update items
+        app.put('/products/:id', async (req, res) => {
             const id = req.params.id;
             const updatedItem = req.body;
-            const filter = {_id: ObjectId(id)};
+            const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
             const updatedDoc = {
                 $set: {
@@ -62,25 +62,16 @@ async function run(){
 
         })
 
-        // delete a user
-        app.delete('/products/:id', async(req, res) =>{
+        // delete an item
+        app.delete('/products/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const result = await itemCollection.deleteOne(query);
             res.send(result);
         })
 
-        // app.post('/productss', (req, res) =>  {
-        //     const newItems = req.body;
-        //     console.log('Adding', newItems);
-        //     res.send({result: 'Items Added successfully!!'})
-        // });
-        // const products =  {name: "suzuki" , model: "sf"};
-        // const result = await userCollection.insertOne(products);
-        // console.log(`inserted: ${result.insertedId}`);
-
     }
-    finally{
+    finally {
 
     }
 }
@@ -96,6 +87,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log('listening');
 })
-
-// user:dbserver1
-// pass:EkSsh05KlZzFG547
