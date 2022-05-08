@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const ObjectId = require('mongodb').ObjectId;
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -9,9 +11,11 @@ app.use(express.json());
 
 
 
-const uri = "mongodb+srv://dbserver1:EkSsh05KlZzFG547@cluster0.4l5l2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.4l5l2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+console.log('db connected');
 async function run(){
+
     try{
         await client.connect();
         const itemCollection = client.db("wirehouse").collection("products");
@@ -30,7 +34,7 @@ async function run(){
             res.send(result);
         });
 
-        // POST items
+        // POST User : add a new user
         app.post('/products', async(req, res) =>{
             const newItem = req.body;
             console.log('adding new item', newItem);
@@ -39,7 +43,32 @@ async function run(){
         });
 
         // update user
-        
+        app.put('/products/:id', async(req, res) =>{
+            const id = req.params.id;
+            const updatedItem = req.body;
+            const filter = {_id: ObjectId(id)};
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    name: updatedItem.name,
+                    model: updatedItem.model
+                }
+                // "$inc": {
+                //     name: 10
+                // }
+            };
+            const result = await itemCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+
+        })
+
+        // delete a user
+        app.delete('/products/:id', async(req, res) =>{
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await itemCollection.deleteOne(query);
+            res.send(result);
+        })
 
         // app.post('/productss', (req, res) =>  {
         //     const newItems = req.body;
