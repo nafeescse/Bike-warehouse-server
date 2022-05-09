@@ -34,6 +34,10 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/hero', async (req, res) => {
+            
+            res.send('herko');
+        });
         // POST neew items
         app.post('/products', async (req, res) => {
             const newItem = req.body;
