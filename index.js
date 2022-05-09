@@ -34,7 +34,7 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/hero', async (req, res) => {
+        app.get('/hero',(req, res) => {
             
             res.send('herko');
         });
